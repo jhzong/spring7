@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.java.dao.MemberDao"><!-- dao위치 -->
+	<select id="selectIdAndPw" resultType="com.java.dto.MemberDto"><!-- 받는메소드,dto위치 -->
+		select * from member where id=#{id} and pw=#{pw}
+	</select>
+	<select id="selectAllMem" resultType="com.java.dto.MemberDto"><!-- 받는메소드,dto위치 -->
+		select * from member
+	</select>
+</mapper>
