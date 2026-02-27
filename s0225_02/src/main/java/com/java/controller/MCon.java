@@ -78,4 +78,11 @@ public class MCon {
 	public String join() {
 		return "join";
 	}
+	
+	// 회원가입-정보저장
+	@PostMapping("/member/join")
+	public String doJoin(MemberDto mdto, Model model) {
+		
+		return "redirect:/";
+	}
 }
