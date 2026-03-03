@@ -56,7 +56,8 @@ public class BoardServiceImpl implements BoardService {
 		int maxPage = pageList.getTotalPages();         //마지막페이지
 		int startPage = ((page)/10)*10+1;               //하단넘버링 시작번호
 		int endPage = Math.min(startPage+10-1, maxPage);//하단넘버링 마지막번호
-		List<BoardDto> list = pageList.getContent();    //게시글내용
+		//게시글내용
+		List<BoardDto> list = pageList.getContent();
 		Map<String, Object> map = new HashMap<>();
 		map.put("page", page);//Pageable=0부터 시작
 		map.put("maxPage", maxPage);
@@ -66,8 +67,8 @@ public class BoardServiceImpl implements BoardService {
 		//하단넘버링에 필요한 데이터
 		
 		return map;
-	}
-	
+	}//findAll
+
 	//전체게시글 불러오기-sort
 //	@Override
 //	public List<BoardDto> findAll(Sort sort) {
@@ -75,6 +76,47 @@ public class BoardServiceImpl implements BoardService {
 //		return list;
 //	}
 
+	//게시글검색+전체게시글
+	@Override
+	public Map<String, Object> findContaining(int page, int size, String category, String search) {
+		//정렬 - bgroup 역순,bstep 순차
+		Sort sort = Sort.by(
+				Sort.Order.desc("bgroup"),Sort.Order.asc("bstep")
+				);
+		// Pageable - 현재페이지,사이즈크기,정렬,Pageable=0부터 시작
+		Pageable pageable = PageRequest.of(page-1, size, sort);
+		
+		//Page타입으로 리턴 받음(page처리 할 때)
+		Page<BoardDto> pageList = null;
+		
+		//검색- findByBtitleContaining(btitle)
+		if (category==null) {
+			pageList = boardRepository.findAll(pageable);
+		}else if (category.equals("all")) {
+			pageList = boardRepository.findByBtitleContainingOrBcontentContaining(search,search,pageable);
+		}else if (category.equals("btitle")) {
+			pageList = boardRepository.findByBtitleContaining(search,pageable);
+		}else if (category.equals("bcontent")) {
+			pageList = boardRepository.findByBcontentContaining(search,pageable);
+		}
+		//하단넘버링에 필요한 데이터
+		int maxPage = pageList.getTotalPages();         //마지막페이지
+		int startPage = ((page)/10)*10+1;               //하단넘버링 시작번호
+		int endPage = Math.min(startPage+10-1, maxPage);//하단넘버링 마지막번호
+		List<BoardDto> list = pageList.getContent();    //게시글내용
+		Map<String, Object> map = new HashMap<>();
+		map.put("page", page);//Pageable=0부터 시작
+		map.put("maxPage", maxPage);
+		map.put("startPage", startPage);
+		map.put("endPage", endPage);
+		map.put("list", list);
+		map.put("search", search);
+		map.put("category", category);
+		System.out.println("serviceImpl : "+category+","+search);
+		
+		return map;
+	}
+	
 	//글쓰기저장
 	@Transactional//method 완료시 기존의 연속성 context가 수정되면 DB에 자동반영.
 	@Override
@@ -124,10 +166,13 @@ public class BoardServiceImpl implements BoardService {
 		BoardDto nextDto = boardRepository.findByNext(bno).orElse(null);
 		//현재글
 		BoardDto boardDto = boardRepository.findById(bno).orElse(null);
+		
+		System.out.println("boardDto의 commentList : "+boardDto.getCommentList().size());
 		//객체를 map에 담는다.
 		map.put("preDto", preDto);
 		map.put("nextDto", nextDto);
 		map.put("boardDto", boardDto);
+		map.put("commentList", boardDto.getCommentList());
 		
 		//조회수1증가 - 새로고침 조회수 증가 방지법 cookie,session,db등
 		boardDto.setBhit(boardDto.getBhit()+1);

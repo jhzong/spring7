@@ -2,6 +2,8 @@ package com.java.repository;
 
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -34,5 +36,12 @@ public interface BoardRepository extends JpaRepository<BoardDto, Integer> {
 			+ "select bno,lead(bno,1,-1) over(order by bgroup desc,bstep asc)\r\n"
 			+ "next_bno from boarddto)where bno=?)",nativeQuery = true)
 	Optional<BoardDto> findByNext(Integer bno);
+
+	//게시글검색-제목
+	Page<BoardDto> findByBtitleContaining(String btitle, Pageable pageable);
+	//게시글검색-내용
+	Page<BoardDto> findByBcontentContaining(String bcontent, Pageable pageable);
+	//게시글검색-제목 및 내용
+	Page<BoardDto> findByBtitleContainingOrBcontentContaining(String btitle, String bcontent, Pageable pageable);
 
 }

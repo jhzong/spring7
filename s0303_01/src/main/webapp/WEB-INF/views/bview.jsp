@@ -303,7 +303,7 @@
   <div class="detail-container">
     <div class="detail-title">${board.btitle}</div>
     <div class="detail-info">
-      <div>작성자: ${board.memberDto.id}</div>
+      <div>작성자: ${board.memberDto.name}</div>
       <div>작성일: <fmt:formatDate value="${board.bdate}" pattern="yyyy-MM-dd"/></div>
       <div>조회수: ${board.bhit}</div>
       
@@ -321,7 +321,7 @@
     </div>
     <div class="detail-buttons">
       <a href="/board/breply?bno=${board.bno}">답글쓰기</a>
-      <a href="/board/blist">목록으로</a>
+      <a href="/board/blist?page=${page}&category=${category}&search=${search}}">목록으로</a>
       <a href="/board/bupdate?bno=${board.bno}">수정</a>
       <button id="deleteBtn">삭제</button>
     </div>
@@ -332,14 +332,14 @@
 	    <span>이전글</span>
 		<c:if test="${preBoard==null}"> 해당 게시물 없음.</c:if>
 		<c:if test="${preBoard!=null}">
-	    <a href="/board/bview/${preBoard.bno}">${preBoard.btitle}</a>
+	    <a href="/board/bview/${preBoard.bno}?page=${page}&category=${category}&search=${search}">${preBoard.btitle}</a>
 		</c:if>
 	  </div>
 	  <div class="next-post">
 	    <span>다음글</span>
 		<c:if test="${nextBoard==null}"> 해당 게시물 없음.</c:if>
 		<c:if test="${nextBoard!=null}">
-	    <a href="/board/bview/${nextBoard.bno}">${nextBoard.btitle}</a>
+	    <a href="/board/bview/${nextBoard.bno}?page=${page}&category=${category}&search=${search}">${nextBoard.btitle}</a>
 		</c:if>
 	  </div>
 	</div>
@@ -351,17 +351,24 @@
     <form id="commentForm">
       <input type="text" id="commentName" placeholder="이름" maxlength="20" />
       <textarea id="commentText" placeholder="댓글을 입력하세요." maxlength="200"></textarea>
-      <button type="submit">등록</button>
+      <button type="button" id="commentBtn">등록</button>
     </form>
     <div id="commentsList">
+    <c:if test="${not empty commentList}">
+     <c:forEach var="c" items="${commentList}">
       <div class="comment">
-        <strong>홍길동</strong> <span>(2025-09-08 14:32)</span>
-        <p>추석 연휴 배송 안내 감사합니다!</p>
+        <strong>${c.memberDto.name}</strong> <span>(${c.cdate})</span>
+        <p>${c.ccontent}</p>
         <div class="comment-buttons">
           <button class="edit-btn">수정</button>
           <button class="delete-btn">삭제</button>
         </div>
       </div>
+     </c:forEach>
+    </c:if>
+    <c:if test="${empty commentList}">
+     <p>등록된 댓글이 없습니다.</p>
+    </c:if>
     </div>
   </div>
 
@@ -420,49 +427,39 @@
       }
     });
 
-    // 댓글 기능
-    const commentForm = document.getElementById('commentForm');
-    const commentsList = document.getElementById('commentsList');
-
-    commentForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-
-      const nameInput = document.getElementById('commentName');
-      const textInput = document.getElementById('commentText');
-      const name = nameInput.value.trim();
-      const text = textInput.value.trim();
-
-      if (!name || !text) {
-        alert('이름과 댓글 내용을 모두 입력해주세요.');
-        return;
-      }
-
-      const now = new Date();
-      const formattedDate = now.getFullYear() + '-' +
-                            String(now.getMonth()+1).padStart(2,'0') + '-' +
-                            String(now.getDate()).padStart(2,'0') + ' ' +
-                            String(now.getHours()).padStart(2,'0') + ':' +
-                            String(now.getMinutes()).padStart(2,'0');
-
-      const newComment = document.createElement('div');
-      newComment.classList.add('comment');
-      newComment.style.padding = '12px 15px';
-      newComment.style.borderBottom = '1px solid #e0e0e0';
-
-      newComment.innerHTML = `
-        <strong>\${escapeHtml(name)}</strong> <span>(\${formattedDate})</span>
-        <p>\${escapeHtml(text)}</p>
-        <div class="comment-buttons">
-          <button class="edit-btn">수정</button>
-          <button class="delete-btn">삭제</button>
-        </div>
-      `;
-
-      commentsList.appendChild(newComment);
-
-      nameInput.value = '';
-      textInput.value = '';
-    });
+    // 댓글 기능--------------------------------------------------------
+    //jQuery
+    $(function(){
+	    //const commentForm = ${"#commentForm"}
+	    //const commentsList = ${"#commentsList"}
+	    $(document).on("click","#commentBtn",function(){
+	    	const name = $("#commentName").val().trim()
+	    	const text = $("#commentText").val().trim()
+	    	const bno = ${board.bno};
+	    	
+	    	if (!name || !text) {
+		        alert('이름과 댓글 내용을 모두 입력해주세요.');
+		        return;
+		      }
+	    	
+	    	alert("댓글을 등록합니다.")
+	    	
+	    	//DB 댓글저장 ajax구현
+	    	$.ajax({
+	    		url:"/comment/save",
+	    		type:"post",
+	    		dataType:"text",//text,json,xml
+	    		data:{"ccontent":text,"bno":bno},
+	    		success:function(data){
+	    			console.log("result : "+data);
+	    		},error:function(){alert("실패");}
+	    	})//ajax
+	    })//commentBtn
+    	
+    });//jQuery
+    
+    
+    
 
     // 댓글 수정/삭제 이벤트 위임
     commentsList.addEventListener('click', (e) => {
