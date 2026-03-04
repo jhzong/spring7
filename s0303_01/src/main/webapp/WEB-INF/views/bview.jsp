@@ -321,7 +321,7 @@
     </div>
     <div class="detail-buttons">
       <a href="/board/breply?bno=${board.bno}">답글쓰기</a>
-      <a href="/board/blist?page=${page}&category=${category}&search=${search}}">목록으로</a>
+      <a href="/board/blist?page=${page}&category=${category}&search=${search}">목록으로</a>
       <a href="/board/bupdate?bno=${board.bno}">수정</a>
       <button id="deleteBtn">삭제</button>
     </div>
