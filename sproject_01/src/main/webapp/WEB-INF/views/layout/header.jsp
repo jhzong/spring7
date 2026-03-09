@@ -112,7 +112,7 @@ $(document).ready(function() {
 				<ul>
 					<li><a href="#">EVENT</a></li>
 					<li><a href="/customer/customer">CUSTOMER</a></li>
-					<li><a href="#">COMMUNITY</a></li>
+					<li><a href="/api/publicTour">공공API</a></li>
 				</ul>
 			</div>
 			<div id="snb">
@@ -126,7 +126,7 @@ $(document).ready(function() {
 					<li><a href="/member/member">${session_name}</a></li>
 					</c:if>
 					<li><a href="#">MY PAGE</a></li>
-					<li><a href="#">CART</a></li>
+					<li><a href="/api/graph">그래프</a></li>
 				</ul>
 
 				<div id="search">

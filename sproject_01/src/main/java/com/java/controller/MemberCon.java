@@ -39,6 +39,7 @@ public class MemberCon {
 		else cookie.setMaxAge(0);
 		response.addCookie(cookie);
 		
+		//아이디,비번 확인
 		MemberDto memberDto = memberService.findByIdAndPw(mdto);
 		if (memberDto!=null) {
 			session.setAttribute("session_id",mdto.getId());
